@@ -11,3 +11,9 @@ node 'nic-hadoop-razor.nearinfinity.com' {
     inetd => false,
   }
 }
+
+node 'smmc*.nearinfinity.com' {
+  notify { 'log message':
+    message => "Puppet agent run on machine " + $hostname,
+  }
+}
