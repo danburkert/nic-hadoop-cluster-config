@@ -12,7 +12,7 @@ node 'nic-hadoop-razor.nearinfinity.com' {
   }
 }
 
-node 'smmc*.nearinfinity.com' {
+node /^smmc\d+\.nearinfinity\.com$/ {
   notify { 'log message':
     message => "Puppet agent run on machine " + $hostname,
   }
