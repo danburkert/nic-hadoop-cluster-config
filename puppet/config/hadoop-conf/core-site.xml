@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- /usr/lib/hadoop/conf/core-site.xml -->
+
+<configuration>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://nic-hadoop-smmc01:8020/</value>
+    <final>true</final>
+  </property>
+</configuration>

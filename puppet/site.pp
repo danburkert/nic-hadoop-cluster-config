@@ -1,3 +1,10 @@
+# etc/puppet/manifests/site.pp
+
+# This manifest relies on the following modules:
+# puppetlabs-razor
+# razorsedge-network
+# saz-sudo
+
 ### Razor node
 node 'nic-hadoop-razor.nearinfinity.com' {
   class { 'sudo':
@@ -30,17 +37,20 @@ node /^nic-hadoop-smmc\d+\.hadoop\.nearinfinity\.com$/ {
 ### Individual SMMC nodes
 node 'nic-hadoop-smmc01.hadoop.nearinfinity.com' {
   require smmc
-  include zookeeper::server
   include hadoop::namenode
-  include hadoop::jobtracker
 }
 node 'nic-hadoop-smmc02.hadoop.nearinfinity.com' {
   require smmc
-  include hadoop::namenode
+  include hadoop::jobtracker
 }
 node 'nic-hadoop-smmc03.hadoop.nearinfinity.com' {
   require smmc
-  include hadoop::jobtracker
+  include zookeeper::server
+}
+node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
+  require smmc
+  include zookeeper::server
+  include hadoop::namenode
 }
 
 ### SMMC Setup ###
@@ -67,91 +77,84 @@ class cdh::repo {
 
 class hadoop {
   require cdh::repo
+  group { 'hadoop':
+    ensure => present,
+  }
+  user { 'hadoop':
+      ensure     => present,
+      gid        => 'hadoop',
+      managehome => true,
+      require    => Group['hadoop'],
+  }
+  ssh_authorized_key { "hadoop":
+    ensure  => "present",
+    type    => "ssh-rsa",
+    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQDfGPHgjqtE4gfbSHPa3vYY8W6zmshj7KoTDMFS14iYBtNCwEUim1oUAKRQhHy8NIyjXpkZV0uZVmSXbRSBM+OOSeUgBziryKGYa3pQoHcOW68SaOMgw/L03nXHFHIIjv64MB8ErhOt6JyEoH23XEh7WZxHdgJPeVEyPxZYRrYJQ2gSmJcv3r3x0AhULJW3WGW/Ud54sB1Zh4iqC6ED26Lzpn2xWqaQyeyyWOV7W+6SPXKT9ku08VcD+AvUtqTVC+yjSmUwDBNNEaqL+MtopWyatMheZFmu+YaisvTNvZSiHTTwfRsbTW9P9RDKfT4FZmQhBjahLOUe3qtpZhScO5Yf==",
+    user    => "hadoop",
+    require => File['ssh-dir']
+  }
+  file { 'ssh-dir':
+    ensure => present,
+    path   => "/home/hadoop/.ssh/",
+  }
+  file { 'ssh-key':
+    ensure  => present,
+    path    => '/home/hadoop/.ssh/id_rsa',
+    source  => 'puppet:///private/id_rsa',
+    require => File['ssh-dir'],
+  }
   package { 'hadoop-0.20': }
   package { 'hadoop-0.20-sbin': }
   package { 'hadoop-0.20-native': }
+  exec { '/bin/chown hadoop:hadoop -R /usr/lib/hadoop-0.20':
+    require => [Package['hadoop-0.20'], User['hadoop']],
+  }
 }
 class hadoop::datanode {
   require hadoop
   package { 'hadoop-0.20-datanode': }
-  service { 'hadoop-0.20-datanode':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 class hadoop::namenode {
   require hadoop
   package { 'hadoop-0.20-namenode': }
-  service { 'hadoop-0.20-namenode':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 class hadoop::tasktracker {
   require hadoop
   package { 'hadoop-0.20-tasktracker': }
-  service { 'hadoop-0.20-tasktracker':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 class hadoop::jobtracker {
   require hadoop
   package { 'hadoop-0.20-jobtracker': }
-  service { 'hadoop-0.20-jobtracker':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 
 ### Setup HBase ###
 class hbase {
   require hadoop
   package { 'hadoop-hbase': }
+  exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
+    require => Package['hadoop-hbase'],
+  }
 }
 class hbase::regionserver {
   require hbase
   package { 'hadoop-hbase-regionserver': }
-  service { 'hadoop-hbase-regionserver':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 class hbase::master {
   require hbase
   package { 'hadoop-hbase-master': }
-  service { 'hadoop-hbase-master':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 
 ### Setup Zookeeper ###
 class zookeeper {
   require hadoop
   package { 'hadoop-zookeeper': }
+  exec { '/bin/chown hadoop:hadoop -R /usr/lib/zookeeper':
+    require => Package['hadoop-zookeeper'],
+  }
 }
 class zookeeper::server {
   require zookeeper
   package { 'hadoop-zookeeper-server': }
-  service { 'hadoop-zookeeper-server':
-    ensure      => running,
-    enable      => true,
-    hasstatus   => true,
-    hasrestart  => true,
-  }
 }
 
 class localadmin {
@@ -185,7 +188,7 @@ class java {
   file { "jdk-rpm":
     ensure  => present,
     path    => "/opt/rpm/jdk-7u7-linux-x64.rpm",
-    source  => "puppet:///rpm/jdk-7u7-linux-x64.rpm",
+    source  => "puppet:///private/jdk-7u7-linux-x64.rpm",
     require => File['rpm-dir'],
   }
   package { 'jdk-1.7.0_07-fcs.x86_64':
