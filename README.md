@@ -1,4 +1,4 @@
-MiniCloud-Scripts
+nic-hadoop cluster config
 =================
 
-Scripts used to bring the NIC-MiniCloud online
+Scripts and configuration for the nic-hadoop cluster
