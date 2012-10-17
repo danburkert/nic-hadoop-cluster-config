@@ -1,9 +1,10 @@
 # etc/puppet/manifests/site.pp
 
 # This manifest relies on the following modules:
-# puppetlabs-razor
-# razorsedge-network
-# saz-sudo
+# puppetlabs/razor
+# puppetlabs/vcsrepo
+# razorsedge/network
+# saz/sudo
 
 ### Razor node
 node 'nic-hadoop-razor.nearinfinity.com' {
@@ -77,6 +78,7 @@ class cdh::repo {
 
 class hadoop {
   require cdh::repo
+  require config-files
   group { 'hadoop':
     ensure => present,
   }
@@ -107,6 +109,15 @@ class hadoop {
   package { 'hadoop-0.20-sbin': }
   package { 'hadoop-0.20-native': }
   exec { '/bin/chown hadoop:hadoop -R /usr/lib/hadoop-0.20':
+    require => [Package['hadoop-0.20'], User['hadoop']],
+  }
+  file { '/usr/lib/hadoop-0.20/conf':
+    ensure  => directory,
+    source  => '/home/localadmin/cluster-config/hadoop-conf',
+    recurse => true,
+    purge   => true,
+    owner   => 'hadoop',
+    group   => 'hadoop',
     require => [Package['hadoop-0.20'], User['hadoop']],
   }
 }
@@ -177,6 +188,17 @@ class localadmin {
   class { 'sudo': }
   sudo::conf { 'localadmin':
     content  => "%localadmin ALL=(ALL) NOPASSWD: ALL\n",
+  }
+}
+
+class config-files {
+  require localadmin
+  package { 'git': }
+  vcsrepo { '/home/localadmin/cluster-config':
+    ensure   => latest,
+    provider => git,
+    source   => 'git://github.com/danburkert/nic-hadoop-cluster-config.git',
+    require   => Package['git'],
   }
 }
 
