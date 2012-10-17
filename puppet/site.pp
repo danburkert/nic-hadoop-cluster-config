@@ -52,7 +52,7 @@ node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
   require smmc
   include hadoop::namenode
 }
-node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc05.hadoop.nearinfinity.com' {
   require smmc
   include hbase::master
 }
@@ -96,17 +96,13 @@ class hadoop {
     type    => "ssh-rsa",
     key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQDfGPHgjqtE4gfbSHPa3vYY8W6zmshj7KoTDMFS14iYBtNCwEUim1oUAKRQhHy8NIyjXpkZV0uZVmSXbRSBM+OOSeUgBziryKGYa3pQoHcOW68SaOMgw/L03nXHFHIIjv64MB8ErhOt6JyEoH23XEh7WZxHdgJPeVEyPxZYRrYJQ2gSmJcv3r3x0AhULJW3WGW/Ud54sB1Zh4iqC6ED26Lzpn2xWqaQyeyyWOV7W+6SPXKT9ku08VcD+AvUtqTVC+yjSmUwDBNNEaqL+MtopWyatMheZFmu+YaisvTNvZSiHTTwfRsbTW9P9RDKfT4FZmQhBjahLOUe3qtpZhScO5Yf==",
     user    => "hadoop",
-    require => File['ssh-dir']
-  }
-  file { 'ssh-dir':
-    ensure => present,
-    path   => "/home/hadoop/.ssh/",
+    require => User['hadoop'],
   }
   file { 'ssh-key':
     ensure  => present,
     path    => '/home/hadoop/.ssh/id_rsa',
     source  => 'puppet:///private/id_rsa',
-    require => File['ssh-dir'],
+    require => Ssh_authorized_key['hadoop'],
   }
   package { 'hadoop-0.20': }
   package { 'hadoop-0.20-sbin': }
