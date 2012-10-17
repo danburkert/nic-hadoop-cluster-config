@@ -52,6 +52,10 @@ node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
   require smmc
   include hadoop::namenode
 }
+node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
+  require smmc
+  include hbase::master
+}
 
 ### SMMC Setup ###
 class smmc {
