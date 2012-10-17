@@ -141,6 +141,7 @@ class hadoop::jobtracker {
 ### Setup HBase ###
 class hbase {
   require hadoop
+  require zookeeper
   package { 'hadoop-hbase': }
   exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
     require => Package['hadoop-hbase'],
@@ -169,6 +170,15 @@ class zookeeper {
   require hadoop
   package { 'hadoop-zookeeper': }
   exec { '/bin/chown hadoop:hadoop -R /usr/lib/zookeeper':
+    require => Package['hadoop-zookeeper'],
+  }
+  file { '/usr/lib/zookeeper/conf':
+    ensure  => directory,
+    source  => '/home/localadmin/cluster-config/zookeeper-conf',
+    recurse => true,
+    purge   => true,
+    owner   => 'hadoop',
+    group   => 'hadoop',
     require => Package['hadoop-zookeeper'],
   }
 }
@@ -206,8 +216,9 @@ class config-files {
   vcsrepo { '/home/localadmin/cluster-config':
     ensure   => latest,
     provider => git,
-    source   => 'git://github.com/danburkert/nic-hadoop-cluster-config.git',
-    require   => Package['git'],
+    source   => 'https://github.com/danburkert/nic-hadoop-cluster-config.git',
+    revision => 'master',
+    require  => Package['git'],
   }
 }
 
