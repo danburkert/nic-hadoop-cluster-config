@@ -50,7 +50,6 @@ node 'nic-hadoop-smmc03.hadoop.nearinfinity.com' {
 }
 node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
   require smmc
-  include zookeeper::server
   include hadoop::namenode
 }
 
