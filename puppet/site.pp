@@ -145,6 +145,15 @@ class hbase {
   exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
     require => Package['hadoop-hbase'],
   }
+  file { '/usr/lib/hbase/conf':
+    ensure  => directory,
+    source  => '/home/localadmin/cluster-config/hbase-conf',
+    recurse => true,
+    purge   => true,
+    owner   => 'hadoop',
+    group   => 'hadoop',
+    require => Package['hadoop-hbase'],
+  }
 }
 class hbase::regionserver {
   require hbase
