@@ -91,19 +91,25 @@ class hadoop {
       managehome => true,
       require    => Group['hadoop'],
   }
-  ssh_authorized_key { "hadoop":
-    ensure  => "present",
-    type    => "ssh-rsa",
-    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQDfGPHgjqtE4gfbSHPa3vYY8W6zmshj7KoTDMFS14iYBtNCwEUim1oUAKRQhHy8NIyjXpkZV0uZVmSXbRSBM+OOSeUgBziryKGYa3pQoHcOW68SaOMgw/L03nXHFHIIjv64MB8ErhOt6JyEoH23XEh7WZxHdgJPeVEyPxZYRrYJQ2gSmJcv3r3x0AhULJW3WGW/Ud54sB1Zh4iqC6ED26Lzpn2xWqaQyeyyWOV7W+6SPXKT9ku08VcD+AvUtqTVC+yjSmUwDBNNEaqL+MtopWyatMheZFmu+YaisvTNvZSiHTTwfRsbTW9P9RDKfT4FZmQhBjahLOUe3qtpZhScO5Yf==",
-    user    => "hadoop",
-    require => User['hadoop'],
-  }
-  file { 'ssh-key':
-    ensure  => present,
-    path    => '/home/hadoop/.ssh/id_rsa',
-    source  => 'puppet:///private/id_rsa',
-    require => Ssh_authorized_key['hadoop'],
-  }
+# ssh_authorized_key { "hadoop":
+#   ensure  => "present",
+#   type    => "ssh-rsa",
+#   key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC1Rt6OEzmuG1pKgMP46N6e1SSn2EjeBXlTw++fRzRUYWePzygIVGb+o/sFw52Sa7cNxh11AZuiu4Bh/GzK9GbsCsFD6prayYmTmNIDgUr4RfPWfVnSmXwy4ipfRNh3fWK+VxLC00vLvSEY9DbdoftjjD6HAKzjh8QltVXQbtsJ47+oxpGgUvTMWbAQ1usz7z/kwbBllVBkCabwKP4km9ZwkpdsZC9IEAJ+bbrFEeqpD4W7qp/fUIjmx5ogfxhJA8c0EmuWcG0YlLNPBgZVSx1+wwgceM2oppOqsOJUmkL3TRm3E1JuX+PSsBfEoLtgW8bXzlO0JLH6d40UA7P8DH+J",
+#   user    => "hadoop",
+#   require => User['hadoop'],
+# }
+# file { 'ssh-key':
+#   ensure  => present,
+#   path    => '/home/hadoop/.ssh/id_rsa',
+#   source  => 'puppet:///private/hadoop-id_rsa',
+#   require => Ssh_authorized_key['hadoop'],
+# }
+# file { 'ssh-key-pub':
+#   ensure  => present,
+#   path    => '/home/hadoop/.ssh/id_rsa.pub',
+#   source  => 'puppet:///private/hadoop-id_rsa.pub',
+#   require => Ssh_authorized_key['hadoop'],
+# }
   package { 'hadoop-0.20': }
   package { 'hadoop-0.20-sbin': }
   package { 'hadoop-0.20-native': }
@@ -199,9 +205,28 @@ class localadmin {
   ssh_authorized_key { "dburkert":
     ensure  => "present",
     type    => "ssh-rsa",
-    key     => "AAAAB3NzaC1yc2EAAAABIwAAAQEAqW/oDNyE2RrGwZ0ydP1UnOWqCRc4czp8lLvPefecQ9nP+a4FOt4hOC3AcbcpQ49OfV4Y2100tZKgL6SBnJVT+eNzsZfjqz43QiXClyq5jEJhU/2yC/pgp/sVXhMGIinKNpwJn8eRbur0oejThK2FifKqvXxNtvyKySfWSu8MRvETXvGA7/cqSSScwp5nik15vQYmarvu/ulIECki/MCksPtuk/2xC27fWgTU82tqundc+NAaa5YJX8chVT95BM7g9u4BxjgDYA6FuFa56MKHN6RwOHTwcQe17e30Oeirypp3yt7/RxqYZVgug3++tEjOftcLmUQGXYS/Tj5KGWJcOw==",
+    key     => "aaaab3nzac1yc2eaaaabiwaaaqeaqw/odnye2rrgwz0ydp1unowqcrc4czp8llvpefecq9np+a4fot4hoc3acbcpq49ofv4y2100tzkgl6sbnjvt+enzszfjqz43qixclyq5jejhu/2yc/pgp/svxhmgiinknpwjn8erbur0oejthk2fifkqvxxntvykysfwsu8mrvetxvga7/cqssscwp5nik15vqymarvu/uliecki/mcksptuk/2xc27fwgtu82tqundc+naaa5yjx8chvt95bm7g9u4bxjgdya6fufa56mkhn6rwohtwcqe17e30oeirypp3yt7/rxqyzvgug3++tejoftclmuqgxys/tj5kgwjcow",
     user    => "localadmin",
-    require => User['localadmin']
+    require => user['localadmin']
+  }
+  ssh_authorized_key { "localadmin":
+    ensure  => "present",
+    type    => "ssh-rsa",
+    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC5GHZ5bxtta63uk4uQwI895V6pQs39uKAnE+mHQf7KjctVvp57caYYxUNCwNHflLmFBMj+EDjtSgMmPv7GPKgPzsBPQoWT9pqErGhBSL3GQsFn1qmfBjhsySIzE70tseq6okVwFxR/BjzgdGePwC3pyCsAqKuz0IXYJMqwzGqse83K4JQ1mZ/LyaP6M+/OGBENWG/1XEvcX6v/t1sWq+Nf0hJwVstSSP1j2W6gCAMuUkMaplbf/QoVt3ld0xDyQOOkgFfplVGmFVXalaQuqUAF9mHhUnHh+96BFX4uaCTV4s41yP5MJbftnXrF5H3orb6E+yICb4ZNtanJ6cd+AyU3",
+    user    => "localadmin",
+    require => user['localadmin']
+  }
+  file { 'ssh-key':
+    ensure  => present,
+    path    => '/home/localadmin/.ssh/id_rsa',
+    source  => 'puppet:///private/localadmin-id_rsa',
+    require => Ssh_authorized_key['localadmin'],
+  }
+  file { 'ssh-key-pub':
+    ensure  => present,
+    path    => '/home/localadmin/.ssh/id_rsa.pub',
+    source  => 'puppet:///private/localadmin-id_rsa.pub',
+    require => Ssh_authorized_key['localadmin'],
   }
   class { 'sudo': }
   sudo::conf { 'localadmin':
