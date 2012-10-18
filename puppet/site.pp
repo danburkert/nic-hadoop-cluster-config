@@ -89,19 +89,23 @@ class hadoop {
     command => '/usr/sbin/alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /home/localadmin/cluster-config/hadoop-0.20/conf.nic-hadoop/ 100',
     require => Package['hadoop-0.20'],
   }
+  file { [ '/data1/hdfs'
+         , '/data2/hdfs'
+         ]:
+    ensure  => directory,
+    owner   => 'hdfs',
+    group   => 'hadoop',
+    mode    => '700',
+    require => Package['hadoop-0.20'],
+  }
 }
 class hadoop::datanode {
   require hadoop
   package { 'hadoop-0.20-datanode': }
-  file { '/data1/hdfs/data/':
-    ensure  => present,
-    owner   => 'hdfs',
-    group   => 'hadoop',
-    mode    => '700',
-    require => Package['hadoop-0.20-datanode'],
-  }
-  file { '/data2/hdfs/data/':
-    ensure  => present,
+  file { [ '/data1/hdfs/data'
+         , '/data2/hdfs/data'
+         ]:
+    ensure  => directory,
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => '700',
@@ -111,15 +115,10 @@ class hadoop::datanode {
 class hadoop::namenode {
   require hadoop
   package { 'hadoop-0.20-namenode': }
-  file { '/data1/hdfs/name/':
-    ensure  => present,
-    owner   => 'hdfs',
-    group   => 'hadoop',
-    mode    => '700',
-    require => Package['hadoop-0.20-namenode'],
-  }
-  file { '/data2/hdfs/name/':
-    ensure  => present,
+  file { [ '/data1/hdfs/name'
+         , '/data2/hdfs/name'
+         ]:
+    ensure  => directory,
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => '700',
@@ -129,15 +128,12 @@ class hadoop::namenode {
 class hadoop::tasktracker {
   require hadoop
   package { 'hadoop-0.20-tasktracker': }
-  file { '/data1/mapred/local/':
-    ensure  => present,
-    owner   => 'mapred',
-    group   => 'hadoop',
-    mode    => '755',
-    require => Package['hadoop-0.20-tasktracker'],
-  }
-  file { '/data2/mapred/local/':
-    ensure  => present,
+  file { [ '/data1/mapred'
+         , '/data2/mapred'
+         , '/data1/mapred/local/'
+         , '/data2/mapred/local/'
+         ]:
+    ensure  => directory,
     owner   => 'mapred',
     group   => 'hadoop',
     mode    => '755',
@@ -154,9 +150,6 @@ class hbase {
   require hadoop
   require zookeeper
   package { 'hadoop-hbase': }
-# exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
-#   require => Package['hadoop-hbase'],
-# }
 }
 class hbase::regionserver {
   require hbase
