@@ -82,61 +82,67 @@ class cdh::repo {
 class hadoop {
   require cdh::repo
   require config-files
-  group { 'hadoop':
-    ensure => present,
-  }
-  user { 'hadoop':
-      ensure     => present,
-      gid        => 'hadoop',
-      managehome => true,
-      require    => Group['hadoop'],
-  }
-# ssh_authorized_key { "hadoop":
-#   ensure  => "present",
-#   type    => "ssh-rsa",
-#   key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC1Rt6OEzmuG1pKgMP46N6e1SSn2EjeBXlTw++fRzRUYWePzygIVGb+o/sFw52Sa7cNxh11AZuiu4Bh/GzK9GbsCsFD6prayYmTmNIDgUr4RfPWfVnSmXwy4ipfRNh3fWK+VxLC00vLvSEY9DbdoftjjD6HAKzjh8QltVXQbtsJ47+oxpGgUvTMWbAQ1usz7z/kwbBllVBkCabwKP4km9ZwkpdsZC9IEAJ+bbrFEeqpD4W7qp/fUIjmx5ogfxhJA8c0EmuWcG0YlLNPBgZVSx1+wwgceM2oppOqsOJUmkL3TRm3E1JuX+PSsBfEoLtgW8bXzlO0JLH6d40UA7P8DH+J",
-#   user    => "hadoop",
-#   require => User['hadoop'],
-# }
-# file { 'ssh-key':
-#   ensure  => present,
-#   path    => '/home/hadoop/.ssh/id_rsa',
-#   source  => 'puppet:///private/hadoop-id_rsa',
-#   require => Ssh_authorized_key['hadoop'],
-# }
-# file { 'ssh-key-pub':
-#   ensure  => present,
-#   path    => '/home/hadoop/.ssh/id_rsa.pub',
-#   source  => 'puppet:///private/hadoop-id_rsa.pub',
-#   require => Ssh_authorized_key['hadoop'],
-# }
   package { 'hadoop-0.20': }
   package { 'hadoop-0.20-sbin': }
   package { 'hadoop-0.20-native': }
-  exec { '/bin/chown hadoop:hadoop -R /usr/lib/hadoop-0.20':
-    require => [Package['hadoop-0.20'], User['hadoop']],
-  }
-  file { '/usr/lib/hadoop-0.20/conf':
-    ensure  => directory,
-    source  => '/home/localadmin/cluster-config/hadoop-conf',
-    recurse => true,
-    purge   => true,
-    owner   => 'hadoop',
-    group   => 'hadoop',
-    require => [Package['hadoop-0.20'], User['hadoop']],
+  exec { 'hadoop-config':
+    command => '/usr/sbin/alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /home/localadmin/cluster-config/hadoop-0.20/conf.nic-hadoop/ 100',
+    require => Package['hadoop-0.20'],
   }
 }
 class hadoop::datanode {
   require hadoop
   package { 'hadoop-0.20-datanode': }
+  file { '/data1/hdfs/data/':
+    ensure  => present,
+    owner   => 'hdfs',
+    group   => 'hadoop',
+    mode    => '700',
+    require => Package['hadoop-0.20-datanode'],
+  }
+  file { '/data2/hdfs/data/':
+    ensure  => present,
+    owner   => 'hdfs',
+    group   => 'hadoop',
+    mode    => '700',
+    require => Package['hadoop-0.20-datanode'],
+  }
 }
 class hadoop::namenode {
   require hadoop
   package { 'hadoop-0.20-namenode': }
+  file { '/data1/hdfs/name/':
+    ensure  => present,
+    owner   => 'hdfs',
+    group   => 'hadoop',
+    mode    => '700',
+    require => Package['hadoop-0.20-namenode'],
+  }
+  file { '/data2/hdfs/name/':
+    ensure  => present,
+    owner   => 'hdfs',
+    group   => 'hadoop',
+    mode    => '700',
+    require => Package['hadoop-0.20-namenode'],
+  }
 }
 class hadoop::tasktracker {
   require hadoop
   package { 'hadoop-0.20-tasktracker': }
+  file { '/data1/mapred/local/':
+    ensure  => present,
+    owner   => 'mapred',
+    group   => 'hadoop',
+    mode    => '755',
+    require => Package['hadoop-0.20-tasktracker'],
+  }
+  file { '/data2/mapred/local/':
+    ensure  => present,
+    owner   => 'mapred',
+    group   => 'hadoop',
+    mode    => '755',
+    require => Package['hadoop-0.20-tasktracker'],
+  }
 }
 class hadoop::jobtracker {
   require hadoop
@@ -148,18 +154,9 @@ class hbase {
   require hadoop
   require zookeeper
   package { 'hadoop-hbase': }
-  exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
-    require => Package['hadoop-hbase'],
-  }
-  file { '/usr/lib/hbase/conf':
-    ensure  => directory,
-    source  => '/home/localadmin/cluster-config/hbase-conf',
-    recurse => true,
-    purge   => true,
-    owner   => 'hadoop',
-    group   => 'hadoop',
-    require => Package['hadoop-hbase'],
-  }
+# exec { '/bin/chown hadoop:hadoop -R /usr/lib/hbase':
+#   require => Package['hadoop-hbase'],
+# }
 }
 class hbase::regionserver {
   require hbase
@@ -174,18 +171,6 @@ class hbase::master {
 class zookeeper {
   require hadoop
   package { 'hadoop-zookeeper': }
-  exec { '/bin/chown hadoop:hadoop -R /usr/lib/zookeeper':
-    require => Package['hadoop-zookeeper'],
-  }
-  file { '/usr/lib/zookeeper/conf':
-    ensure  => directory,
-    source  => '/home/localadmin/cluster-config/zookeeper-conf',
-    recurse => true,
-    purge   => true,
-    owner   => 'hadoop',
-    group   => 'hadoop',
-    require => Package['hadoop-zookeeper'],
-  }
 }
 class zookeeper::server {
   require zookeeper
