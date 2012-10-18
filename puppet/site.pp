@@ -205,14 +205,14 @@ class localadmin {
   ssh_authorized_key { "dburkert":
     ensure  => "present",
     type    => "ssh-rsa",
-    key     => "AAAAB3NzaC1yc2EAAAABIwAAAQEAqW/oDNyE2RrGwZ0ydP1UnOWqCRc4czp8lLvPefecQ9nP+a4FOt4hOC3AcbcpQ49OfV4Y2100tZKgL6SBnJVT+eNzsZfjqz43QiXClyq5jEJhU/2yC/pgp/sVXhMGIinKNpwJn8eRbur0oejThK2FifKqvXxNtvyKySfWSu8MRvETXvGA7/cqSSScwp5nik15vQYmarvu/ulIECki/MCksPtuk/2xC27fWgTU82tqundc+NAaa5YJX8chVT95BM7g9u4BxjgDYA6FuFa56MKHN6RwOHTwcQe17e30Oeirypp3yt7/RxqYZVgug3++tEjOftcLmUQGXYS/Tj5KGWJcOw",
+    key     => "AAAAB3NzaC1yc2EAAAABIwAAAQEAqW/oDNyE2RrGwZ0ydP1UnOWqCRc4czp8lLvPefecQ9nP+a4FOt4hOC3AcbcpQ49OfV4Y2100tZKgL6SBnJVT+eNzsZfjqz43QiXClyq5jEJhU/2yC/pgp/sVXhMGIinKNpwJn8eRbur0oejThK2FifKqvXxNtvyKySfWSu8MRvETXvGA7/cqSSScwp5nik15vQYmarvu/ulIECki/MCksPtuk/2xC27fWgTU82tqundc+NAaa5YJX8chVT95BM7g9u4BxjgDYA6FuFa56MKHN6RwOHTwcQe17e30Oeirypp3yt7/RxqYZVgug3++tEjOftcLmUQGXYS/Tj5KGWJcOw==",
     user    => "localadmin",
     require => user['localadmin']
   }
   ssh_authorized_key { "localadmin":
     ensure  => "present",
     type    => "ssh-rsa",
-    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC5GHZ5bxtta63uk4uQwI895V6pQs39uKAnE+mHQf7KjctVvp57caYYxUNCwNHflLmFBMj+EDjtSgMmPv7GPKgPzsBPQoWT9pqErGhBSL3GQsFn1qmfBjhsySIzE70tseq6okVwFxR/BjzgdGePwC3pyCsAqKuz0IXYJMqwzGqse83K4JQ1mZ/LyaP6M+/OGBENWG/1XEvcX6v/t1sWq+Nf0hJwVstSSP1j2W6gCAMuUkMaplbf/QoVt3ld0xDyQOOkgFfplVGmFVXalaQuqUAF9mHhUnHh+96BFX4uaCTV4s41yP5MJbftnXrF5H3orb6E+yICb4ZNtanJ6cd+AyU3",
+    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC5GHZ5bxtta63uk4uQwI895V6pQs39uKAnE+mHQf7KjctVvp57caYYxUNCwNHflLmFBMj+EDjtSgMmPv7GPKgPzsBPQoWT9pqErGhBSL3GQsFn1qmfBjhsySIzE70tseq6okVwFxR/BjzgdGePwC3pyCsAqKuz0IXYJMqwzGqse83K4JQ1mZ/LyaP6M+/OGBENWG/1XEvcX6v/t1sWq+Nf0hJwVstSSP1j2W6gCAMuUkMaplbf/QoVt3ld0xDyQOOkgFfplVGmFVXalaQuqUAF9mHhUnHh+96BFX4uaCTV4s41yP5MJbftnXrF5H3orb6E+yICb4ZNtanJ6cd+AyU3==",
     user    => "localadmin",
     require => user['localadmin']
   }
