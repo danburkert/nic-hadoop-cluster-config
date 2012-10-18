@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<!-- /usr/lib/hadoop/conf/mapred-site.xml -->
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
 
 <configuration>
   <property>
@@ -25,9 +27,5 @@
     <name>mapred.tasktracker.reduce.tasks.maximum</name>
     <value>4</value>
     <final>true</final>
-  </property>
-  <property>
-    <name>mapred.child.java.opts</name>
-    <value>-Xmx512m</value>
   </property>
 </configuration>
