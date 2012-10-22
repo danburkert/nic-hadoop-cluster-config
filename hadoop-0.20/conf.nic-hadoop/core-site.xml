@@ -6,9 +6,12 @@
 <configuration>
   <property>
     <name>fs.default.name</name>
-    #<value>hdfs://nic-hadoop-smmc01.hadoop.nearinfinity.com:8020/</value>
     <value>hdfs://nic-hadoop-smmc01:8020/</value>
-    #<value>hdfs://192.168.203.201:8020/</value>
+    <final>true</final>
+  </property>
+  <property>
+    <name>hadoop.tmp.dir</name>
+    <value>/data2/tmp/</value>
     <final>true</final>
   </property>
 </configuration>

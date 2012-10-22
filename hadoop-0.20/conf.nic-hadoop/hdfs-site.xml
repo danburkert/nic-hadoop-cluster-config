@@ -31,14 +31,15 @@
     <name>dfs.webhdfs.enabled</name>
     <value>true</value>
   </propert>
-# <property>
-#   <name>dfs.http.address</name>
-#   <value>192.168.203.201:50070</value>
-#   <description>
-#     The address and the base port on which the dfs NameNode Web UI
-#     will listen.  If the port is 0, the server will start on a free port.
-#   </description>
-# </property>
+  <property>
+    <name>dfs.http.address</name>
+    #<value>192.168.203.201:50070</value>
+    <value>nic-hadoop-smmc01:50070</value>
+    <description>
+      The address and the base port on which the dfs NameNode Web UI
+      will listen.  If the port is 0, the server will start on a free port.
+    </description>
+  </property>
   <property>
     <name>fs.checkpoint.dir</name>
     <value>/data1/hdfs/namesecondary</value>

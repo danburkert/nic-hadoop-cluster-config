@@ -31,30 +31,30 @@ node 'nic-hadoop-razor.nearinfinity.com' {
 }
 
 ### All SMMC nodes
-node /^nic-hadoop-smmc\d+\.hadoop\.nearinfinity\.com$/ {
+node /^nic-hadoop-smmc\d+\.nearinfinity\.com$/ {
   include smmc
 }
 
 ### Individual SMMC nodes
-node 'nic-hadoop-smmc01.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc01.nearinfinity.com' {
   require smmc
   include hadoop::namenode
 }
-node 'nic-hadoop-smmc02.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc02.nearinfinity.com' {
   require smmc
   include hadoop::jobtracker
 }
-node 'nic-hadoop-smmc03.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc03.nearinfinity.com' {
   require smmc
-  include zookeeper::server
+  #include zookeeper::server
 }
-node 'nic-hadoop-smmc04.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc04.nearinfinity.com' {
   require smmc
   include hadoop::namenode
 }
-node 'nic-hadoop-smmc05.hadoop.nearinfinity.com' {
+node 'nic-hadoop-smmc05.nearinfinity.com' {
   require smmc
-  include hbase::master
+  #include hbase::master
 }
 
 ### SMMC Setup ###
@@ -65,8 +65,8 @@ class smmc {
   include hadoop
   include hadoop::datanode
   include hadoop::tasktracker
-  include hbase
-  include hbase::regionserver
+  #include hbase
+  #include hbase::regionserver
 }
 
 ### Hadoop Setup ###
@@ -81,13 +81,19 @@ class cdh::repo {
 
 class hadoop {
   require cdh::repo
-  require config-files
   package { 'hadoop-0.20': }
   package { 'hadoop-0.20-sbin': }
   package { 'hadoop-0.20-native': }
-  exec { 'hadoop-config':
-    command => '/usr/sbin/alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /home/localadmin/cluster-config/hadoop-0.20/conf.nic-hadoop/ 100',
+  file { 'hadoop-conf':
+    path    => '/etc/hadoop-0.20/conf.nic-hadoop/',
+    ensure  => present,
+    source  => 'puppet:///hadoop-conf/conf.nic-hadoop/',
+    recurse => true,
     require => Package['hadoop-0.20'],
+  }
+  exec { 'hadoop-alternatives':
+    command => '/usr/sbin/alternatives --install /etc/hadoop-0.20/conf hadoop-0.20-conf /etc/hadoop-0.20/conf.nic-hadoop 100',
+    require => File['hadoop-conf'],
   }
   file { [ '/data1/hdfs'
          , '/data2/hdfs'
@@ -213,15 +219,6 @@ class localadmin {
 }
 
 class config-files {
-  require localadmin
-  package { 'git': }
-  vcsrepo { '/home/localadmin/cluster-config':
-    ensure   => latest,
-    provider => git,
-    source   => 'https://github.com/danburkert/nic-hadoop-cluster-config.git',
-    revision => 'master',
-    require  => Package['git'],
-  }
 }
 
 class java {
