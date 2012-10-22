@@ -46,15 +46,15 @@ node 'nic-hadoop-smmc02.nearinfinity.com' {
 }
 node 'nic-hadoop-smmc03.nearinfinity.com' {
   require smmc
-  #include zookeeper::server
+  include zookeeper::server
 }
 node 'nic-hadoop-smmc04.nearinfinity.com' {
   require smmc
-  include hadoop::namenode
+  include hadoop::secondarynamenode
 }
 node 'nic-hadoop-smmc05.nearinfinity.com' {
   require smmc
-  #include hbase::master
+  include hbase::master
 }
 
 ### SMMC Setup ###
@@ -65,13 +65,14 @@ class smmc {
   include hadoop
   include hadoop::datanode
   include hadoop::tasktracker
-  #include hbase
-  #include hbase::regionserver
+  include hbase
+  include hbase::regionserver
 }
 
 ### Hadoop Setup ###
 class cdh::repo {
   yumrepo { 'cloudera-cdh3':
+    name       => "Cloudera's Distribution for Hadoop, Version 3",
     baseurl    => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/3/',
     mirrorlist => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/3/mirrors',
     gpgkey     => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/RPM-GPG-KEY-cloudera',
@@ -87,7 +88,7 @@ class hadoop {
   file { 'hadoop-conf':
     path    => '/etc/hadoop-0.20/conf.nic-hadoop/',
     ensure  => present,
-    source  => 'puppet:///hadoop-conf/conf.nic-hadoop/',
+    source  => 'puppet:///repo/conf.nic-hadoop/',
     recurse => true,
     require => Package['hadoop-0.20'],
   }
@@ -103,6 +104,10 @@ class hadoop {
     group   => 'hadoop',
     mode    => '700',
     require => Package['hadoop-0.20'],
+  }
+  service { 'iptables':
+    ensure => stopped,
+    enable => false,
   }
 }
 class hadoop::datanode {
@@ -121,15 +126,19 @@ class hadoop::datanode {
 class hadoop::namenode {
   require hadoop
   package { 'hadoop-0.20-namenode': }
-  file { [ '/data1/hdfs/name'
-         , '/data2/hdfs/name'
-         ]:
-    ensure  => directory,
-    owner   => 'hdfs',
-    group   => 'hadoop',
-    mode    => '700',
-    require => Package['hadoop-0.20-namenode'],
-  }
+# file { [ '/data1/hdfs/name'
+#        , '/data2/hdfs/name'
+#        ]:
+#   ensure  => directory,
+#   owner   => 'hdfs',
+#   group   => 'hadoop',
+#   mode    => '700',
+#   require => Package['hadoop-0.20-namenode'],
+# }
+}
+class hadoop::secondarynamenode {
+  require hadoop
+  package { 'hadoop-0.20-secondarynamenode': }
 }
 class hadoop::tasktracker {
   require hadoop
@@ -156,6 +165,13 @@ class hbase {
   require hadoop
   require zookeeper
   package { 'hadoop-hbase': }
+  file { 'hbase-conf':
+    path    => '/etc/hbase/conf/',
+    ensure  => present,
+    source  => 'puppet:///repo/conf.nic-hbase/',
+    recurse => true,
+    require => Package['hadoop-hbase'],
+  }
 }
 class hbase::regionserver {
   require hbase
@@ -170,6 +186,21 @@ class hbase::master {
 class zookeeper {
   require hadoop
   package { 'hadoop-zookeeper': }
+  file { '/etc/hadoop-zookeeper/':
+    ensure => directory,
+    require => Package['hadoop-zookeeper'],
+  }
+  file { 'zookeeper-conf':
+    path    => '/etc/hadoop-zookeeper/conf.nic-zookeeper/',
+    ensure  => present,
+    source  => 'puppet:///repo/conf.nic-zookeeper/',
+    recurse => true,
+    require => File['/etc/hadoop-zookeeper/'],
+  }
+  exec { 'zookeeper-alternatives':
+    command => '/usr/sbin/alternatives --install /etc/zookeeper hadoop-zookeeper-conf /etc/hadoop-zookeeper/conf.nic-zookeeper 100',
+    require => File['zookeeper-conf'],
+  }
 }
 class zookeeper::server {
   require zookeeper
@@ -193,32 +224,10 @@ class localadmin {
     user    => "localadmin",
     require => user['localadmin']
   }
-  ssh_authorized_key { "localadmin":
-    ensure  => "present",
-    type    => "ssh-rsa",
-    key     => "AAAAB3NzaC1yc2EAAAADAQABAAABAQC5GHZ5bxtta63uk4uQwI895V6pQs39uKAnE+mHQf7KjctVvp57caYYxUNCwNHflLmFBMj+EDjtSgMmPv7GPKgPzsBPQoWT9pqErGhBSL3GQsFn1qmfBjhsySIzE70tseq6okVwFxR/BjzgdGePwC3pyCsAqKuz0IXYJMqwzGqse83K4JQ1mZ/LyaP6M+/OGBENWG/1XEvcX6v/t1sWq+Nf0hJwVstSSP1j2W6gCAMuUkMaplbf/QoVt3ld0xDyQOOkgFfplVGmFVXalaQuqUAF9mHhUnHh+96BFX4uaCTV4s41yP5MJbftnXrF5H3orb6E+yICb4ZNtanJ6cd+AyU3==",
-    user    => "localadmin",
-    require => user['localadmin']
-  }
-  file { 'ssh-key':
-    ensure  => present,
-    path    => '/home/localadmin/.ssh/id_rsa',
-    source  => 'puppet:///private/localadmin-id_rsa',
-    require => Ssh_authorized_key['localadmin'],
-  }
-  file { 'ssh-key-pub':
-    ensure  => present,
-    path    => '/home/localadmin/.ssh/id_rsa.pub',
-    source  => 'puppet:///private/localadmin-id_rsa.pub',
-    require => Ssh_authorized_key['localadmin'],
-  }
   class { 'sudo': }
   sudo::conf { 'localadmin':
     content  => "%localadmin ALL=(ALL) NOPASSWD: ALL\n",
   }
-}
-
-class config-files {
 }
 
 class java {
