@@ -24,6 +24,10 @@
     <value>/data1/hdfs/namesecondary</value>
   </property>
   <property>
+    <name>dfs.replication</name>
+    <value>3</value>
+  </property>
+  <property>
     <name>dfs.block.size</name>
     <value>134217728</value>
   </property>
@@ -37,7 +41,6 @@
   </property>
   <property>
     <name>dfs.http.address</name>
-    #<value>192.168.203.201:50070</value>
     <value>nic-hadoop-smmc01:8080</value>
     <description>
       The address and the base port on which the dfs NameNode Web UI

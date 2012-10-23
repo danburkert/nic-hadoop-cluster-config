@@ -72,7 +72,6 @@ class smmc {
 ### Hadoop Setup ###
 class cdh::repo {
   yumrepo { 'cloudera-cdh3':
-    name       => "Cloudera's Distribution for Hadoop, Version 3",
     baseurl    => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/3/',
     mirrorlist => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/3/mirrors',
     gpgkey     => 'http://archive.cloudera.com/redhat/6/x86_64/cdh/RPM-GPG-KEY-cloudera',
@@ -122,23 +121,35 @@ class hadoop::datanode {
     mode    => '700',
     require => Package['hadoop-0.20-datanode'],
   }
+  service { 'hadoop-0.20-datanode':
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['hadoop-0.20-datanode'],
+  }
 }
 class hadoop::namenode {
   require hadoop
   package { 'hadoop-0.20-namenode': }
-# file { [ '/data1/hdfs/name'
-#        , '/data2/hdfs/name'
-#        ]:
-#   ensure  => directory,
-#   owner   => 'hdfs',
-#   group   => 'hadoop',
-#   mode    => '700',
-#   require => Package['hadoop-0.20-namenode'],
-# }
+  service { 'hadoop-0.20-namenode':
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['hadoop-0.20-namenode'],
+  }
 }
 class hadoop::secondarynamenode {
   require hadoop
   package { 'hadoop-0.20-secondarynamenode': }
+  service { 'hadoop-0.20-secondarynamenode':
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['hadoop-0.20-secondarynamenode'],
+  }
 }
 class hadoop::tasktracker {
   require hadoop
@@ -154,10 +165,24 @@ class hadoop::tasktracker {
     mode    => '755',
     require => Package['hadoop-0.20-tasktracker'],
   }
+  service { 'hadoop-0.20-tasktracker':
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['hadoop-0.20-tasktracker'],
+  }
 }
 class hadoop::jobtracker {
   require hadoop
   package { 'hadoop-0.20-jobtracker': }
+  service { 'hadoop-0.20-jobtracker':
+    ensure     => running,
+    enable     => true,
+    hasstatus  => true,
+    hasrestart => true,
+    require    => Package['hadoop-0.20-jobtracker'],
+  }
 }
 
 ### Setup HBase ###
@@ -176,10 +201,16 @@ class hbase {
 class hbase::regionserver {
   require hbase
   package { 'hadoop-hbase-regionserver': }
+  service { 'hadoop-hbase-regionserver':
+    require => Package['hadoop-hbase-regionserver'],
+  }
 }
 class hbase::master {
   require hbase
   package { 'hadoop-hbase-master': }
+  service { 'hadoop-hbase-master':
+    require => Package['hadoop-hbase-master'],
+  }
 }
 
 ### Setup Zookeeper ###
@@ -205,6 +236,25 @@ class zookeeper {
 class zookeeper::server {
   require zookeeper
   package { 'hadoop-zookeeper-server': }
+  # The zookeeper service that comes installed does not work, so create a new one
+  # based off the zkServer script.
+  file { '/etc/init.d/zookeeper':
+    ensure  => present,
+    source  => '/usr/bin/zookeeper-server',
+    mode    => '755',
+    require => Package['hadoop-zookeeper-server'],
+  }
+  exec { 'add chkconfig info':
+    command => "/bin/echo '# chkconfig: 2345 85 15' >> /etc/init.d/zookeeper",
+    require => File['/etc/init.d/zookeeper'],
+  }
+  service { 'zookeeper':
+    ensure     => running,
+    enable     => true,
+    hasrestart => true,
+    hasstatus  => true,
+    require    => exec['add chkconfig info'],
+  }
 }
 
 class localadmin {
