@@ -312,3 +312,10 @@ class interface-bond {
     master => "bond0",
   }
 }
+
+class honeycomb {
+  #package { 'mysql-server':
+  #ensure => '
+
+}
+
